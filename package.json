@@ -1,0 +1,21 @@
+{
+  "name": "my-stockyangu",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "pnpm --filter @app/frontend dev",
+    "dev:backend": "pnpm --filter @app/backend dev",
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r --parallel build",
+    "clean": "pnpm -r --parallel clean",
+    "start": "pnpm --prefix @app/backend start"
+    
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "typescript": "~5.6.2"
+  },
+  "dependencies": {
+    "@tsconfig/strictest": "^2.0.5"
+  }
+}

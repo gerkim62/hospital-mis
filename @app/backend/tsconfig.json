@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+
+    "outDir": "./dist",
+
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+
+    "noEmitOnError": true,
+    "pretty": true
+  },
+  "include": ["src/**/*.ts"],
+  "extends": "../../tsconfig.json"
+}
