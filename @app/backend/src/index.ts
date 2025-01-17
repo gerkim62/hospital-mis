@@ -3,12 +3,12 @@ import path from "path";
 
 import router from "./routes";
 
-const PORT = 3000;
+const PORT = process.env["PORT"] || 5000;
 const app = express();
 
 const ___dirname = path.resolve();
 console.log(___dirname);
-if (true || process.env["NODE_ENV"] === "production") {
+if ( process.env["NODE_ENV"] === "production") {
   console.log("Server running in production mode");
   app.use(express.static(path.join(___dirname, "../frontend/dist")));
 
