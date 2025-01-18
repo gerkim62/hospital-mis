@@ -8,7 +8,10 @@ const app = express();
 
 const ___baseDir = path.resolve();
 console.log(___baseDir);
-if ( process.env["NODE_ENV"] === "production") {
+
+app.use("/api/v1", router);
+
+if (process.env["NODE_ENV"] === "production") {
   console.log("Server running in production mode");
   app.use(express.static(path.join(___baseDir, "../frontend/dist")));
 
@@ -16,8 +19,6 @@ if ( process.env["NODE_ENV"] === "production") {
     res.sendFile(path.join(___baseDir, "../frontend/dist/index.html"));
   });
 }
-
-app.use("/api/v1", router);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
