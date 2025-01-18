@@ -6,14 +6,14 @@ import router from "./routes";
 const PORT = process.env["PORT"] || 5000;
 const app = express();
 
-const ___dirname = path.resolve();
-console.log(___dirname);
+const ___baseDir = path.resolve();
+console.log(___baseDir);
 if ( process.env["NODE_ENV"] === "production") {
   console.log("Server running in production mode");
-  app.use(express.static(path.join(___dirname, "../frontend/dist")));
+  app.use(express.static(path.join(___baseDir, "../frontend/dist")));
 
   app.get("*", (_, res) => {
-    res.sendFile(path.join(___dirname, "../frontend/dist/index.html"));
+    res.sendFile(path.join(___baseDir, "../frontend/dist/index.html"));
   });
 }
 
