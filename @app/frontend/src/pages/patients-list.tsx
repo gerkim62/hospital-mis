@@ -1,242 +1,181 @@
-'use client'
-
-import { NewPatientModal } from '@/components/modals/new-patient'
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
-import { ChevronDown, ChevronRight, ChevronUp, Clock, Search } from 'lucide-react'
-import React, { useMemo, useState } from 'react'
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Download, FlaskConical, User, DollarSign, TestTube } from "lucide-react";
+import { useState } from 'react';
 
-type Patient = {
-  id: string
-  name: string
-  labCount: number
-  arrivalTime: Date
-  leftAt: Date | null
-}
+const PatientsPage = () => {
+  // Sample data - replace with your actual data source
+  const [patients] = useState([
+    { id: 1, number: "P001", name: "John Doe", inPremise: true, pendingLabs: true, leftDate: null },
+    { id: 2, number: "P002", name: "Jane Smith", inPremise: false, pendingLabs: false, leftDate: "2024-01-15" },
+    // Add more sample data as needed
+  ]);
 
-type SortOption = 'name' | 'arrivalTime'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showInPremise, setShowInPremise] = useState(false);
+  const [showPendingLabs, setShowPendingLabs] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-const PatientsListView: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState<SortOption>('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  
-  // Sample data - replace with actual data
-  const patients: Patient[] = [
-    {
-      id: "1",
-      name: "John Doe",
-      labCount: 3,
-      arrivalTime: new Date("2024-01-17T08:30:00"),
-      leftAt: new Date("2024-01-17T10:45:00"),
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      labCount: 0,
-      arrivalTime: new Date("2024-01-17T09:15:00"),
-      leftAt: null,
-    },
-    {
-      id: "3",
-      name: "Alice Johnson",
-      labCount: 2,
-      arrivalTime: new Date("2024-01-17T10:00:00"),
-      leftAt: null,
-    },
-    {
-      id: "4",
-      name: "Bob Williams",
-      labCount: 0,
-      arrivalTime: new Date("2024-01-17T11:30:00"),
-      leftAt: new Date("2024-01-17T12:45:00"),
-    },
-  ]
+  const ITEMS_PER_PAGE = 6;
 
-  const itemsPerPage = 10
-  const formatTime = (date: Date | null) => date?.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  })
+  const filteredPatients = patients.filter(patient => {
+    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         patient.number.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesInPremise = !showInPremise || patient.inPremise;
+    const matchesPendingLabs = !showPendingLabs || patient.pendingLabs;
+    return matchesSearch && matchesInPremise && matchesPendingLabs;
+  });
 
-  const filteredAndSortedPatients = useMemo(() => {
-    return patients
-      .filter(patient =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        let comparison = 0
-        switch (sortBy) {
-          case 'name':
-            comparison = a.name.localeCompare(b.name)
-            break
-          case 'arrivalTime':
-            comparison = a.arrivalTime.getTime() - b.arrivalTime.getTime()
-            break
-        }
-        return sortOrder === 'asc' ? comparison : -comparison
-      })
-  }, [patients, searchTerm, sortBy, sortOrder])
+  const paginatedPatients = filteredPatients.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
-  const totalPages = Math.ceil(filteredAndSortedPatients.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedPatients = filteredAndSortedPatients.slice(startIndex, startIndex + itemsPerPage)
+  const totalPages = Math.ceil(filteredPatients.length / ITEMS_PER_PAGE);
 
-  const handleSort = (option: SortOption) => {
-    if (sortBy === option) {
-      setSortOrder(current => current === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(option)
-      setSortOrder('asc')
-    }
-  }
+  const handleDownloadInvoice = (patientId) => {
+    console.log(`Downloading invoice for patient ${patientId}`);
+    // Implement invoice download logic
+  };
 
-  const handleNewPatient = () => {
-    // Implement new patient functionality
-    console.log("New patient button clicked")
-  }
+  const handleExpenses = (patientId) => {
+    console.log(`Viewing expenses for patient ${patientId}`);
+    // Implement expenses view logic
+  };
 
-  const SortableHeader: React.FC<{ title: string, option: SortOption, className?: string }> = ({ title, option, className }) => (
-    <Button 
-      variant="ghost" 
-      onClick={() => handleSort(option)}
-      className={`h-full w-full justify-start px-2 py-1 hover:bg-muted/80 hover:text-accent-foreground transition-colors ${className}`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="font-semibold">{title}</span>
-        {sortBy === option && (
-          sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-        )}
-      </div>
-    </Button>
-  )
+  const handleLabs = (patientId) => {
+    console.log(`Viewing labs for patient ${patientId}`);
+    // Implement labs view logic
+  };
 
   return (
-    <Card className="container mx-auto max-w-6xl p-4">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <CardTitle className="text-2xl">Patients List</CardTitle>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search patients..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <NewPatientModal 
-            onAddPatient={handleNewPatient}
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="mb-8 space-y-4">
+        <div className="flex items-center gap-4">
+          <Input
+            placeholder="Search by name or number..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={showInPremise}
+              onCheckedChange={setShowInPremise}
             />
+            <span>In Premise Only</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={showPendingLabs}
+              onCheckedChange={setShowPendingLabs}
+            />
+            <span>Pending Labs Only</span>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="w-[200px]">
-                  <SortableHeader title="Name" option="name" />
-                </TableHead>
-                <TableHead className="w-[150px]">
-                  <SortableHeader title="Arrival Time" option="arrivalTime" />
-                </TableHead>
-                <TableHead className="w-[150px]">Left At</TableHead>
-                <TableHead className="w-[150px]">Pending Labs</TableHead>
-                <TableHead className="w-[120px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedPatients.map((patient) => (
-                <TableRow key={patient.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-medium">{patient.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      {formatTime(patient.arrivalTime)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {patient.leftAt ? (
-                      formatTime(patient.leftAt)
-                    ) : (
-                      <span className="text-green-600 font-medium">In Facility</span>
-                    )}
-                  </TableCell>
-                  <TableCell >
-                    {patient.labCount > 0 ? "Yes" : "No"}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-colors">
-                      View Details
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+      </div>
 
-        <div className="mt-4 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  className={`${currentPage === 1 ? "pointer-events-none opacity-50" : ""} hover:bg-muted hover:text-accent-foreground transition-colors`}
-                />
-              </PaginationItem>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    onClick={() => setCurrentPage(page)}
-                    isActive={currentPage === page}
-                    className="hover:bg-muted hover:text-accent-foreground transition-colors"
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : ""} hover:bg-muted hover:text-accent-foreground transition-colors`}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {paginatedPatients.map((patient) => (
+          <Card key={patient.id} className="overflow-hidden">
+            <CardHeader className="bg-gray-50">
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                {patient.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">Patient #: {patient.number}</p>
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${patient.inPremise ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-sm">
+                    {patient.inPremise ? 'In Premise' : `Left: ${patient.leftDate}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FlaskConical className={`h-4 w-4 ${patient.pendingLabs ? 'text-amber-500' : 'text-green-500'}`} />
+                  <span className="text-sm">
+                    {patient.pendingLabs ? 'Pending Labs' : 'No Pending Labs'}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="bg-gray-50 flex flex-col gap-2">
+              <div className="grid grid-cols-3 gap-2 w-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-1"
+                  onClick={() => handleDownloadInvoice(patient.id)}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Invoice
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-1"
+                  onClick={() => handleExpenses(patient.id)}
+                >
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Expenses
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-1"
+                  onClick={() => handleLabs(patient.id)}
+                >
+                  <TestTube className="h-4 w-4 mr-2" />
+                  Labs
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
 
-export default PatientsListView
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Button
+                key={i + 1}
+                variant={currentPage === i + 1 ? "default" : "outline"}
+                onClick={() => setCurrentPage(i + 1)}
+                size="sm"
+              >
+                {i + 1}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PatientsPage;

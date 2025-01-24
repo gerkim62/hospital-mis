@@ -1,2 +1,3 @@
 packages:
-  - '@app/*'
+  - '@app/backend'
+  - '@app/frontend'

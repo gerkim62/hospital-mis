@@ -8,22 +8,23 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as MainImport } from './routes/main'
 import { Route as LoginImport } from './routes/login'
+import { Route as LabsImport } from './routes/labs'
 import { Route as ChangePasswordImport } from './routes/change-password'
+import { Route as IndexImport } from './routes/index'
 import { Route as StockIndexImport } from './routes/stock/index'
 import { Route as PatientsIndexImport } from './routes/patients/index'
+import { Route as VisitsVisitIdImport } from './routes/visits/$visitId'
 import { Route as StockStockItemIdImport } from './routes/stock/$stockItemId'
 import { Route as PatientsNewImport } from './routes/patients/new'
-
-// Create Virtual Routes
-
-const IndexLazyImport = createFileRoute('/')()
+import { Route as PatientsPatientIdIndexImport } from './routes/patients/$patientId/index'
+import { Route as PatientsPatientIdVisitsIndexImport } from './routes/patients/$patientId/visits/index'
+import { Route as PatientsPatientIdVisitsNewImport } from './routes/patients/$patientId/visits/new'
+import { Route as PatientsPatientIdVisitsVisitIdImport } from './routes/patients/$patientId/visits/$visitId'
 
 // Create/Update Routes
 
@@ -39,17 +40,23 @@ const LoginRoute = LoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const LabsRoute = LabsImport.update({
+  id: '/labs',
+  path: '/labs',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ChangePasswordRoute = ChangePasswordImport.update({
   id: '/change-password',
   path: '/change-password',
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any)
 
 const StockIndexRoute = StockIndexImport.update({
   id: '/stock/',
@@ -60,6 +67,12 @@ const StockIndexRoute = StockIndexImport.update({
 const PatientsIndexRoute = PatientsIndexImport.update({
   id: '/patients/',
   path: '/patients/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const VisitsVisitIdRoute = VisitsVisitIdImport.update({
+  id: '/visits/$visitId',
+  path: '/visits/$visitId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -75,6 +88,34 @@ const PatientsNewRoute = PatientsNewImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PatientsPatientIdIndexRoute = PatientsPatientIdIndexImport.update({
+  id: '/patients/$patientId/',
+  path: '/patients/$patientId/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PatientsPatientIdVisitsIndexRoute =
+  PatientsPatientIdVisitsIndexImport.update({
+    id: '/patients/$patientId/visits/',
+    path: '/patients/$patientId/visits/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const PatientsPatientIdVisitsNewRoute = PatientsPatientIdVisitsNewImport.update(
+  {
+    id: '/patients/$patientId/visits/new',
+    path: '/patients/$patientId/visits/new',
+    getParentRoute: () => rootRoute,
+  } as any,
+)
+
+const PatientsPatientIdVisitsVisitIdRoute =
+  PatientsPatientIdVisitsVisitIdImport.update({
+    id: '/patients/$patientId/visits/$visitId',
+    path: '/patients/$patientId/visits/$visitId',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -83,7 +124,7 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
+      preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     '/change-password': {
@@ -91,6 +132,13 @@ declare module '@tanstack/react-router' {
       path: '/change-password'
       fullPath: '/change-password'
       preLoaderRoute: typeof ChangePasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/labs': {
+      id: '/labs'
+      path: '/labs'
+      fullPath: '/labs'
+      preLoaderRoute: typeof LabsImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -121,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StockStockItemIdImport
       parentRoute: typeof rootRoute
     }
+    '/visits/$visitId': {
+      id: '/visits/$visitId'
+      path: '/visits/$visitId'
+      fullPath: '/visits/$visitId'
+      preLoaderRoute: typeof VisitsVisitIdImport
+      parentRoute: typeof rootRoute
+    }
     '/patients/': {
       id: '/patients/'
       path: '/patients'
@@ -135,43 +190,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StockIndexImport
       parentRoute: typeof rootRoute
     }
+    '/patients/$patientId/': {
+      id: '/patients/$patientId/'
+      path: '/patients/$patientId'
+      fullPath: '/patients/$patientId'
+      preLoaderRoute: typeof PatientsPatientIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/patients/$patientId/visits/$visitId': {
+      id: '/patients/$patientId/visits/$visitId'
+      path: '/patients/$patientId/visits/$visitId'
+      fullPath: '/patients/$patientId/visits/$visitId'
+      preLoaderRoute: typeof PatientsPatientIdVisitsVisitIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/patients/$patientId/visits/new': {
+      id: '/patients/$patientId/visits/new'
+      path: '/patients/$patientId/visits/new'
+      fullPath: '/patients/$patientId/visits/new'
+      preLoaderRoute: typeof PatientsPatientIdVisitsNewImport
+      parentRoute: typeof rootRoute
+    }
+    '/patients/$patientId/visits/': {
+      id: '/patients/$patientId/visits/'
+      path: '/patients/$patientId/visits'
+      fullPath: '/patients/$patientId/visits'
+      preLoaderRoute: typeof PatientsPatientIdVisitsIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/change-password': typeof ChangePasswordRoute
+  '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
   '/main': typeof MainRoute
   '/patients/new': typeof PatientsNewRoute
   '/stock/$stockItemId': typeof StockStockItemIdRoute
+  '/visits/$visitId': typeof VisitsVisitIdRoute
   '/patients': typeof PatientsIndexRoute
   '/stock': typeof StockIndexRoute
+  '/patients/$patientId': typeof PatientsPatientIdIndexRoute
+  '/patients/$patientId/visits/$visitId': typeof PatientsPatientIdVisitsVisitIdRoute
+  '/patients/$patientId/visits/new': typeof PatientsPatientIdVisitsNewRoute
+  '/patients/$patientId/visits': typeof PatientsPatientIdVisitsIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/change-password': typeof ChangePasswordRoute
+  '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
   '/main': typeof MainRoute
   '/patients/new': typeof PatientsNewRoute
   '/stock/$stockItemId': typeof StockStockItemIdRoute
+  '/visits/$visitId': typeof VisitsVisitIdRoute
   '/patients': typeof PatientsIndexRoute
   '/stock': typeof StockIndexRoute
+  '/patients/$patientId': typeof PatientsPatientIdIndexRoute
+  '/patients/$patientId/visits/$visitId': typeof PatientsPatientIdVisitsVisitIdRoute
+  '/patients/$patientId/visits/new': typeof PatientsPatientIdVisitsNewRoute
+  '/patients/$patientId/visits': typeof PatientsPatientIdVisitsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/change-password': typeof ChangePasswordRoute
+  '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
   '/main': typeof MainRoute
   '/patients/new': typeof PatientsNewRoute
   '/stock/$stockItemId': typeof StockStockItemIdRoute
+  '/visits/$visitId': typeof VisitsVisitIdRoute
   '/patients/': typeof PatientsIndexRoute
   '/stock/': typeof StockIndexRoute
+  '/patients/$patientId/': typeof PatientsPatientIdIndexRoute
+  '/patients/$patientId/visits/$visitId': typeof PatientsPatientIdVisitsVisitIdRoute
+  '/patients/$patientId/visits/new': typeof PatientsPatientIdVisitsNewRoute
+  '/patients/$patientId/visits/': typeof PatientsPatientIdVisitsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -179,55 +280,85 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/change-password'
+    | '/labs'
     | '/login'
     | '/main'
     | '/patients/new'
     | '/stock/$stockItemId'
+    | '/visits/$visitId'
     | '/patients'
     | '/stock'
+    | '/patients/$patientId'
+    | '/patients/$patientId/visits/$visitId'
+    | '/patients/$patientId/visits/new'
+    | '/patients/$patientId/visits'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/change-password'
+    | '/labs'
     | '/login'
     | '/main'
     | '/patients/new'
     | '/stock/$stockItemId'
+    | '/visits/$visitId'
     | '/patients'
     | '/stock'
+    | '/patients/$patientId'
+    | '/patients/$patientId/visits/$visitId'
+    | '/patients/$patientId/visits/new'
+    | '/patients/$patientId/visits'
   id:
     | '__root__'
     | '/'
     | '/change-password'
+    | '/labs'
     | '/login'
     | '/main'
     | '/patients/new'
     | '/stock/$stockItemId'
+    | '/visits/$visitId'
     | '/patients/'
     | '/stock/'
+    | '/patients/$patientId/'
+    | '/patients/$patientId/visits/$visitId'
+    | '/patients/$patientId/visits/new'
+    | '/patients/$patientId/visits/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
+  IndexRoute: typeof IndexRoute
   ChangePasswordRoute: typeof ChangePasswordRoute
+  LabsRoute: typeof LabsRoute
   LoginRoute: typeof LoginRoute
   MainRoute: typeof MainRoute
   PatientsNewRoute: typeof PatientsNewRoute
   StockStockItemIdRoute: typeof StockStockItemIdRoute
+  VisitsVisitIdRoute: typeof VisitsVisitIdRoute
   PatientsIndexRoute: typeof PatientsIndexRoute
   StockIndexRoute: typeof StockIndexRoute
+  PatientsPatientIdIndexRoute: typeof PatientsPatientIdIndexRoute
+  PatientsPatientIdVisitsVisitIdRoute: typeof PatientsPatientIdVisitsVisitIdRoute
+  PatientsPatientIdVisitsNewRoute: typeof PatientsPatientIdVisitsNewRoute
+  PatientsPatientIdVisitsIndexRoute: typeof PatientsPatientIdVisitsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
+  IndexRoute: IndexRoute,
   ChangePasswordRoute: ChangePasswordRoute,
+  LabsRoute: LabsRoute,
   LoginRoute: LoginRoute,
   MainRoute: MainRoute,
   PatientsNewRoute: PatientsNewRoute,
   StockStockItemIdRoute: StockStockItemIdRoute,
+  VisitsVisitIdRoute: VisitsVisitIdRoute,
   PatientsIndexRoute: PatientsIndexRoute,
   StockIndexRoute: StockIndexRoute,
+  PatientsPatientIdIndexRoute: PatientsPatientIdIndexRoute,
+  PatientsPatientIdVisitsVisitIdRoute: PatientsPatientIdVisitsVisitIdRoute,
+  PatientsPatientIdVisitsNewRoute: PatientsPatientIdVisitsNewRoute,
+  PatientsPatientIdVisitsIndexRoute: PatientsPatientIdVisitsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -242,19 +373,28 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/change-password",
+        "/labs",
         "/login",
         "/main",
         "/patients/new",
         "/stock/$stockItemId",
+        "/visits/$visitId",
         "/patients/",
-        "/stock/"
+        "/stock/",
+        "/patients/$patientId/",
+        "/patients/$patientId/visits/$visitId",
+        "/patients/$patientId/visits/new",
+        "/patients/$patientId/visits/"
       ]
     },
     "/": {
-      "filePath": "index.lazy.tsx"
+      "filePath": "index.tsx"
     },
     "/change-password": {
       "filePath": "change-password.tsx"
+    },
+    "/labs": {
+      "filePath": "labs.tsx"
     },
     "/login": {
       "filePath": "login.tsx"
@@ -268,11 +408,26 @@ export const routeTree = rootRoute
     "/stock/$stockItemId": {
       "filePath": "stock/$stockItemId.tsx"
     },
+    "/visits/$visitId": {
+      "filePath": "visits/$visitId.tsx"
+    },
     "/patients/": {
       "filePath": "patients/index.tsx"
     },
     "/stock/": {
       "filePath": "stock/index.ts"
+    },
+    "/patients/$patientId/": {
+      "filePath": "patients/$patientId/index.tsx"
+    },
+    "/patients/$patientId/visits/$visitId": {
+      "filePath": "patients/$patientId/visits/$visitId.tsx"
+    },
+    "/patients/$patientId/visits/new": {
+      "filePath": "patients/$patientId/visits/new.tsx"
+    },
+    "/patients/$patientId/visits/": {
+      "filePath": "patients/$patientId/visits/index.ts"
     }
   }
 }

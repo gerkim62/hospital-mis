@@ -8,16 +8,17 @@ export default defineConfig({
   plugins: [TanStackRouterVite(), react()],
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
+      "/api": {
+        target: "http://localhost:3000",
         changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@app/backend": path.resolve(__dirname, "../backend/src"),
     },
   },
 });

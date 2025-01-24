@@ -17,8 +17,8 @@ model Patient {
   id        String   @id @default(uuid())
   name      String
   birthDate DateTime
-
-  
+  phone     String
+  address   String
 
   visits PatientVisit[]
 
@@ -44,8 +44,34 @@ model PatientVisit {
 
   // array of the stockItems the patient has been given
   stockItemsConsumed StockItem[]
+  // array of the drugs prescribed to the patient 
+  drugsPrescribed    Drug[]
+  // array of the expenses incurred during the visit  
+  expenses           Expense[]
 
   bill Float
+}
+
+model Drug {
+  id          String @id @default(uuid())
+  name        String
+  description String
+  priceKes    Float
+  quantity    Int
+
+  patientVisit   PatientVisit @relation(fields: [patientVisitId], references: [id])
+  patientVisitId String
+}
+
+model Expense {
+  id             String       @id @default(uuid())
+  name           String
+  description    String
+  amount         Float
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  patientVisit   PatientVisit @relation(fields: [patientVisitId], references: [id])
+  patientVisitId String
 }
 
 model Lab {
@@ -61,7 +87,7 @@ model Lab {
 
 model LabResult {
   id      String @id @default(uuid())
-  result  String
+  value   String
   comment String
 }
 

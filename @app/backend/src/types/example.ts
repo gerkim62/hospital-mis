@@ -1,3 +1,3 @@
-const example = 'example';
+const example = "example";
 
 export default example;
