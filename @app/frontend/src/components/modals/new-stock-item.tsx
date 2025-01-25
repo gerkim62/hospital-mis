@@ -11,6 +11,14 @@ interface NewStockItemModalProps {
   onAddItem: (item: { name: string; description: string; quantity: number; unit: string }) => void
 }
 
+// {
+//   name: string;
+//   description: string;
+//   quantity: number;
+//   unit: string;
+// }
+
+
 export function NewStockItemModal({ onAddItem }: NewStockItemModalProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')

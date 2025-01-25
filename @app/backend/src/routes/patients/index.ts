@@ -1,19 +1,48 @@
-import { createPatient } from "@app/backend/controllers/patient";
+import { createPatient, getPatient } from "@app/backend/controllers/patient";
 import { ApiResponseType } from "@app/backend/types/api";
 import { NewPatientSchema } from "@app/backend/validation/patient";
 import { Patient } from "@prisma/client";
-import { Response, Router } from "express";
+import { Request, Response, Router } from "express";
 import { StatusCodes } from "http-status-codes";
+import z from "zod";
 
 const patientsRouter = Router();
 
-patientsRouter.get("/", (req, res) => {
-  res.send("Hello from patients");
-});
+patientsRouter.get(
+  "/:id",
+  async (
+    req: Request<{ id: number }>,
+    res: Response<ApiResponseType<Patient>>
+  ) => {
+    const { id } = z
+      .object({
+        id: z.coerce.number(),
+      })
+      .parse(req.params);
 
-patientsRouter.get("/:id", (req, res) => {
-  res.send(`Hello from patient ${req.params.id}`);
-});
+    const patient = await getPatient(id);
+
+    if (!patient) {
+      const zodIssues =
+        z.object({ id: z.string() }).safeParse(req.params).error?.issues ?? [];
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: "Patient not found",
+        error: zodIssues,
+      });
+
+      return;
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Successfully retrieved patient",
+      data: patient,
+    });
+
+    return;
+  }
+);
 
 patientsRouter.post(
   "/",

@@ -1,22 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { User } from "lucide-react";
 import { ApiResponseType } from "@/types/api";
-import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ReceptionPage() {
   const [entryType, setEntryType] = useState<"existing" | "new">("existing");
@@ -115,13 +115,13 @@ export default function ReceptionPage() {
       }
 
       toast.success(json.message);
+      navigate({
+        to: "/patients/$patientId/visits/new",
+        params: { patientId: json.data.id },
+      });
     } catch (error) {
       console.log(error);
       toast.error("An error occurred. Please try again.");
-    } finally {
-      navigate({
-        to: "/patients",
-      });
     }
   }
 

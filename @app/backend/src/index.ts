@@ -3,6 +3,7 @@ import path from "path";
 
 import router from "./routes";
 import { errorHandlerMiddleware } from "./middlewares/error-handler";
+import paginate from "./middlewares/pagination";
 
 const PORT = process.env["PORT"] || 3000;
 const app = express();
@@ -13,6 +14,9 @@ console.log(___baseDir);
 
 app.use("/api/v1", router);
 app.use(errorHandlerMiddleware);
+
+console.log("enforcing pagination middleware");
+app.use(paginate);
 
 if (process.env["NODE_ENV"] === "production") {
   console.log("Server running in production mode");

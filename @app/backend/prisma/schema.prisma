@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Patient {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   name      String
   birthDate DateTime
   phone     String
@@ -32,7 +32,7 @@ model PatientVisit {
   labs Lab[]
 
   patient   Patient @relation(fields: [patientId], references: [id])
-  patientId String
+  patientId Int
 
   arrivalTime DateTime
   leaveTime   DateTime?
@@ -43,21 +43,18 @@ model PatientVisit {
   notes     String
 
   // array of the stockItems the patient has been given
-  stockItemsConsumed StockItem[]
+  stockItemsMovements StockMovement[]
   // array of the drugs prescribed to the patient 
-  drugsPrescribed    Drug[]
+  drugsPrescribed     Drug[]
   // array of the expenses incurred during the visit  
-  expenses           Expense[]
-
-  bill Float
+  expenses            Expense[]
 }
 
 model Drug {
   id          String @id @default(uuid())
   name        String
   description String
-  priceKes    Float
-  quantity    Int
+  dosage      String
 
   patientVisit   PatientVisit @relation(fields: [patientVisitId], references: [id])
   patientVisitId String
@@ -98,9 +95,7 @@ model StockItem {
   quantity    Int
   unit        String //e.g Kg, Litres, etc
 
-  movements      StockMovement[]
-  PatientVisit   PatientVisit?   @relation(fields: [patientVisitId], references: [id])
-  patientVisitId String?
+  movements StockMovement[]
 }
 
 model StockMovement {
@@ -111,8 +106,10 @@ model StockMovement {
   type        StockMovementType
   priceKes    Float
 
-  item   StockItem @relation(fields: [itemId], references: [id])
-  itemId String
+  item           StockItem     @relation(fields: [itemId], references: [id])
+  itemId         String
+  PatientVisit   PatientVisit? @relation(fields: [patientVisitId], references: [id])
+  patientVisitId String?
 }
 
 enum StockMovementType {

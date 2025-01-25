@@ -2,30 +2,32 @@ import { NewStockItemModal } from "@/components/modals/new-stock-item";
 import { UpdateStockModal } from "@/components/modals/update-stock-item";
 import { Button } from "@/components/ui/button";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
+import { ApiResponseType } from "@/types/api";
 import { ArrowUpDown, History } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type StockItem = {
   id: number;
@@ -68,6 +70,25 @@ export default function StockPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  async function saveStockItem(data: {
+    name: string;
+    description: string;
+    quantity: number;
+    unit: string;
+  }) {
+    const res = await fetch("/api/v1/stock", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const json = (await res.json()) as ApiResponseType<StockItem>;
+
+    return json;
+  }
+
   const sortedItems = [...stockItems].sort((a, b) => {
     const order = sortOrder === "asc" ? 1 : -1;
     switch (sortBy) {
@@ -108,26 +129,29 @@ export default function StockPage() {
   const handleUpdateStock = (id: number, amount: number) => {
     setStockItems((items) =>
       items.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(0, item.quantity + amount) } : item
+        item.id === id
+          ? { ...item, quantity: Math.max(0, item.quantity + amount) }
+          : item
       )
-    )
-  }
-
+    );
+  };
 
   return (
     <div className="p-4 md:p-8 w-full max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Stock Management</h1>
         <NewStockItemModal
-          onAddItem={(item) =>
-            setStockItems((items) => [
-              ...items,
-              {
-                id: items.length + 1,
-                ...item,
-              },
-            ])
-          }
+          onAddItem={async (item) => {
+            console.log(item);
+            const result = await saveStockItem(item);
+            console.log(result);
+            if (!result.success) {
+              toast.error(result.message);
+            } else {
+              toast.success(result.message);
+              setStockItems((prev) => [...prev, result.data]);
+            }
+          }}
         />
       </div>
 
@@ -173,18 +197,14 @@ export default function StockPage() {
                       isAdd={true}
                       itemName={item.name}
                       currentQuantity={item.quantity}
-                      unit={
-                        item.quantity === 1 ? "item" : "items"
-                      }
+                      unit={item.quantity === 1 ? "item" : "items"}
                       onUpdate={(amount) => handleUpdateStock(item.id, amount)}
                     />
                     <UpdateStockModal
                       isAdd={false}
                       itemName={item.name}
                       currentQuantity={item.quantity}
-                      unit={
-                        item.quantity === 1 ? "item" : "items"
-                      }
+                      unit={item.quantity === 1 ? "item" : "items"}
                       onUpdate={(amount) => handleUpdateStock(item.id, amount)}
                     />
                   </div>

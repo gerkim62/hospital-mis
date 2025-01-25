@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { 
-  UserRound, 
-  Clock, 
-  CalendarDays, 
-  ArrowRight 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import useCurrentPatient from "@/hooks/useCurrentPatient";
+import { Route } from "@/routes/patients/$patientId/visits";
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  CalendarDays,
+  Clock,
+  PlusCircle,
+  UserRound,
 } from "lucide-react";
+import { useState } from "react";
 
 const PatientVisitsPage = () => {
   // Sample patient visits data
@@ -22,7 +29,7 @@ const PatientVisitsPage = () => {
       patientName: "Emily Rodriguez",
       arrivalTime: "2024-01-15T09:30:00",
       leaveTime: "2024-01-15T11:45:00",
-      reason: "Annual checkup"
+      reason: "Annual checkup",
     },
     {
       id: "V002",
@@ -30,19 +37,23 @@ const PatientVisitsPage = () => {
       patientName: "Emily Rodriguez",
       arrivalTime: "2024-02-20T14:15:00",
       leaveTime: null,
-      reason: "Follow-up consultation"
-    }
+      reason: "Follow-up consultation",
+    },
   ]);
 
+  const { patientId } = Route.useParams();
+
+  const { patient } = useCurrentPatient(Number(patientId));
+
   const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) return 'N/A';
+    if (!dateTimeString) return "N/A";
     const date = new Date(dateTimeString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -51,54 +62,88 @@ const PatientVisitsPage = () => {
     // Implement view more logic
   };
 
+  const handleNewVisit = () => {
+    console.log("Creating a new visit");
+    // Implement new visit logic
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <Card className="w-full">
-        <CardHeader className="bg-gray-100">
-          <CardTitle className="flex items-center gap-2">
-            <UserRound className="h-6 w-6 text-blue-600" />
-            {visits[0].patientName} - Visits
-            <span className="ml-2 text-sm text-gray-600">
-              Patient ID: {visits[0].patientId}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {visits.map((visit) => (
-            <div 
-              key={visit.id} 
-              className="flex items-center justify-between p-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+      <Card className="w-full shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+                <UserRound className="h-6 w-6 text-blue-600" />
+                {patient ? patient.name : "N/A"}
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-600 mt-1">
+                Patient ID: {patient ? patient.id : (patientId ?? "N/A")}
+              </CardDescription>
+            </div>
+            <Link
+              disabled={!patientId && !patient}
+              to="/patients/$patientId/visits/new"
+              params={{
+                patientId: patient ? patient.id.toString() : (patientId ?? ""),
+              }}
             >
-              <div className="flex items-center space-x-4">
-                <CalendarDays className="h-5 w-5 text-blue-500" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">
-                      Arrival: {formatDateTime(visit.arrivalTime)}
+              <Button
+                onClick={handleNewVisit}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                New Visit
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 divide-y divide-gray-200">
+          {visits.map((visit) => (
+            <div
+              key={visit.id}
+              className="p-4 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <CalendarDays className="h-4 w-4 text-blue-500" />
+                    <span>
+                      {formatDateTime(visit.arrivalTime).split(",")[0]}
                     </span>
                   </div>
-                  {visit.leaveTime && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <span className="text-gray-600">
-                        Departure: {formatDateTime(visit.leaveTime)}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-green-500" />
+                      <span className="font-medium text-gray-700">
+                        Arrival:{" "}
+                        {formatDateTime(visit.arrivalTime).split(",")[1].trim()}
                       </span>
                     </div>
-                  )}
-                  <p className="text-sm text-gray-500 mt-1">
+                    {visit.leaveTime && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-4 w-4 text-red-500" />
+                        <span className="text-gray-600">
+                          Departure:{" "}
+                          {formatDateTime(visit.leaveTime).split(",")[1].trim()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600">
                     Reason: {visit.reason}
                   </p>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewMore(visit.id)}
+                  className="mt-2"
+                >
+                  View Details
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleViewMore(visit.id)}
-              >
-                View More
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
             </div>
           ))}
         </CardContent>

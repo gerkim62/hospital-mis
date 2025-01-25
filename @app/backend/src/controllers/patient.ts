@@ -14,4 +14,14 @@ async function createPatient(data: NewPatientValues) {
   return patient;
 }
 
-export { createPatient };
+async function getPatient(id: number) {
+  const patient = await prisma.patient.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return patient;
+}
+
+export { createPatient, getPatient };

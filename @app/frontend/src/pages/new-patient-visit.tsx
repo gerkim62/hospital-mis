@@ -1,42 +1,118 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { PlusCircle } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, PlusCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Route } from "@/routes/patients/$patientId/visits/new";
+import useCurrentPatient from "@/hooks/useCurrentPatient";
+import { AddExpenseModal, Expense } from "@/components/modals/new-expense";
+import {
+  AddMedicationPrescribedModal,
+  MedicationPrescribed,
+} from "@/components/modals/new-medication-prescribed";
+import {
+  DispensedMedication,
+  DispenseMedicationModal,
+} from "@/components/modals/new-medication-dispense";
+
+type Modal =
+  | "medicationsPrescribed"
+  | "expenses"
+  | "labs"
+  | "medicationsDispensed";
 
 const NewPatientVisitPage: React.FC = () => {
-  const [symptoms, setSymptoms] = useState("")
-  const [diagnosis, setDiagnosis] = useState("")
-  const [treatment, setTreatment] = useState("")
-  const [notes, setNotes] = useState("")
+  const [symptoms, setSymptoms] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [treatment, setTreatment] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const [modal, setModal] = useState<Modal | null>(null);
+
+  const [medicationsPrescribed, setMedicationsPrescribed] = useState<
+    MedicationPrescribed[]
+  >([]);
+  const [medicationsDispensed, setMedicationsDispensed] = useState<
+    DispensedMedication[]
+  >([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [labs, setLabs] = useState([]);
+
+  const { patientId } = Route.useParams();
+
+  const { patient } = useCurrentPatient(Number(patientId));
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle form submission here
-    console.log({ symptoms, diagnosis, treatment, notes })
-  }
+    console.log({ symptoms, diagnosis, treatment, notes });
+  };
 
-  const handleAddition = (type: string) => {
-    // Handle adding medications, expenses, or labs
-    console.log(`Adding ${type}`)
-  }
+  const handleAddition = (type: Modal) => {
+    setModal(type);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+      <AddExpenseModal
+        expenses={expenses}
+        onRemoveExpense={(id) =>
+          setExpenses((prev) => prev.filter((expense) => expense.id !== id))
+        }
+        isOpen={modal === "expenses"}
+        onClose={() => setModal(null)}
+        onAddExpense={(expense) => setExpenses((prev) => [...prev, expense])}
+      />
+      <AddMedicationPrescribedModal
+        isOpen={modal === "medicationsPrescribed"}
+        medications={medicationsPrescribed}
+        onClose={() => setModal(null)}
+        onAddMedication={(medication) =>
+          setMedicationsPrescribed((prev) => [...prev, medication])
+        }
+        onRemoveMedication={(id) =>
+          setMedicationsPrescribed((prev) =>
+            prev.filter((medication) => medication.id !== id)
+          )
+        }
+      />
+      <DispenseMedicationModal
+        dispensedMedications={medicationsDispensed}
+        isOpen={modal === "medicationsDispensed"}
+        onClose={() => setModal(null)}
+        onDispense={(medication) => {
+          setMedicationsDispensed((prev) => [...prev, medication]);
+        }}
+        onRemove={(id) => {
+          setMedicationsDispensed((prev) =>
+            prev.filter((medication) => medication.id !== id)
+          );
+        }}
+      />
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-2xl font-bold">Emily Rodriguez</CardTitle>
-              <p className="text-sm text-muted-foreground">Patient ID: P12345</p>
+              <CardTitle className="text-2xl font-bold">
+                {patient?.name ?? "N/A"}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Patient ID: {patient?.id ?? "N/A"}
+              </p>
             </div>
-            <Button variant="outline">View History</Button>
+            <Link to="/patients/$patientId/visits" params={{ patientId }}>
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Previous Visits
+              </Button>
+            </Link>
           </div>
         </CardHeader>
         <Separator className="my-4" />
@@ -106,19 +182,19 @@ const NewPatientVisitPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={() => handleAddition("medications prescribed")}
+                  onClick={() => handleAddition("medicationsPrescribed")}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Medications Prescribed
+                  Add Medications Prescribed ({medicationsPrescribed.length})
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={() => handleAddition("medications dispensed")}
+                  onClick={() => handleAddition("medicationsDispensed")}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Medications Dispensed
+                  Add Medications Dispensed ({medicationsDispensed.length})
                 </Button>
                 <Button
                   type="button"
@@ -127,7 +203,7 @@ const NewPatientVisitPage: React.FC = () => {
                   onClick={() => handleAddition("expenses")}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Expenses
+                  Add Expenses ({expenses.length})
                 </Button>
                 <Button
                   type="button"
@@ -136,7 +212,7 @@ const NewPatientVisitPage: React.FC = () => {
                   onClick={() => handleAddition("labs")}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Labs
+                  Add Labs ({labs.length})
                 </Button>
               </div>
             </div>
@@ -150,8 +226,7 @@ const NewPatientVisitPage: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default NewPatientVisitPage
-
+export default NewPatientVisitPage;
