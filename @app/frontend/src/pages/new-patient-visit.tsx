@@ -21,6 +21,7 @@ import {
   DispensedMedication,
   DispenseMedicationModal,
 } from "@/components/modals/new-medication-dispense";
+import { AddLabTestModal, LabTest } from "@/components/modals/new-lab-test";
 
 type Modal =
   | "medicationsPrescribed"
@@ -43,7 +44,7 @@ const NewPatientVisitPage: React.FC = () => {
     DispensedMedication[]
   >([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [labs, setLabs] = useState([]);
+  const [labs, setLabs] = useState<LabTest[]>([]);
 
   const { patientId } = Route.useParams();
 
@@ -52,7 +53,16 @@ const NewPatientVisitPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission here
-    console.log({ symptoms, diagnosis, treatment, notes });
+    console.log({
+      symptoms,
+      diagnosis,
+      treatment,
+      notes,
+      labs,
+      medicationsDispensed,
+      medicationsPrescribed,
+      expenses,
+    });
   };
 
   const handleAddition = (type: Modal) => {
@@ -95,6 +105,15 @@ const NewPatientVisitPage: React.FC = () => {
             prev.filter((medication) => medication.id !== id)
           );
         }}
+      />
+      <AddLabTestModal
+        isOpen={modal === "labs"}
+        labTests={labs}
+        onAddLabTest={(labTest) => setLabs((prev) => [...prev, labTest])}
+        onClose={() => setModal(null)}
+        onRemoveLabTest={(id) =>
+          setLabs((prev) => prev.filter((lab) => lab.id !== id))
+        }
       />
       <Card className="w-full">
         <CardHeader className="space-y-1">

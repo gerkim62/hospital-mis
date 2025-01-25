@@ -78,14 +78,18 @@ model Lab {
 
   status LabStatus @default(PENDING)
 
+  result LabResult? @relation(fields: [labResultId], references: [id])
+
   PatientVisit   PatientVisit @relation(fields: [patientVisitId], references: [id])
   patientVisitId String
+  labResultId    String?
 }
 
 model LabResult {
   id      String @id @default(uuid())
   value   String
   comment String
+  Lab     Lab[]
 }
 
 model StockItem {

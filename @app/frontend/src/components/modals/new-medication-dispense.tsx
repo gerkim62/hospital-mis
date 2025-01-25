@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, X, ArrowLeft } from "lucide-react";
 import { ApiResponseType } from "@/types/api";
+import { toast } from "sonner";
 
 type FetchedMedication = {
   id: string;
@@ -128,7 +129,7 @@ export function DispenseMedicationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>
             {selectedMedication ? (
@@ -240,7 +241,21 @@ export function DispenseMedicationModal({
                     id="quantity"
                     type="number"
                     value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
+                    onChange={(e) => {
+                      if (Number(e.target.value) < 0) {
+                        setQuantity("0");
+                        toast.error("Quantity cannot be less than 1");
+                      } else if (
+                        selectedMedication.quantity < Number(e.target.value)
+                      ) {
+                        setQuantity(selectedMedication.quantity.toString());
+                        toast.error(
+                          "Quantity to dispense cannot exceed available quantity"
+                        );
+                      } else {
+                        setQuantity(e.target.value);
+                      }
+                    }}
                     min="1"
                     max={selectedMedication.quantity.toString()}
                     required
@@ -276,11 +291,21 @@ export function DispenseMedicationModal({
         </div>
         <DialogFooter>
           {selectedMedication ? (
-            <Button onClick={handleDispense} disabled={!quantity || !dosage}>
+            <Button
+              onClick={handleDispense}
+              disabled={
+                !quantity ||
+                !dosage ||
+                Number(quantity) > selectedMedication.quantity ||
+                Number(quantity) < 1
+              }
+            >
               Dispense Medication
             </Button>
           ) : (
-            <Button onClick={onClose}>Close</Button>
+            <Button className="w-full" onClick={onClose}>
+              Finish
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
